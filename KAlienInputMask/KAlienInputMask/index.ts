@@ -9,15 +9,10 @@ import * as $ from 'jquery';
 
 
 export class KAlienInputMask implements ComponentFramework.StandardControl<IInputs, IOutputs> {
-	private errorMessage : string; 
+	private errorMessage : string = "must have 'A' followed by 7 to 9 digits"; 
 	private valueToStore: string;
 
-	//private inputMask: ComponentFramework.PropertyTypes.StringProperty;
-
-	private minLength : number;
-	private maxLength : number;
 	private entityField: ComponentFramework.PropertyTypes.StringProperty;
-
 	private _context: ComponentFramework.Context<IInputs>;
 
 	private _container: HTMLDivElement;		//container where this control stays inside
@@ -46,21 +41,17 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 	public init(context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void, state: ComponentFramework.Dictionary, container:HTMLDivElement)
 	{
 		
-		//this.inputMask = context.parameters.inputMask;
-		// this.minLength = context.parameters.minLength.raw? context.parameters.minLength.raw: 0;
-		// this.maxLength = context.parameters.maxLength.raw? context.parameters.maxLength.raw: 0;
-		// if (this.minLength<7) this.minLength=7;
-		// if (this.maxLength<this.minLength) this.maxLength=9; 
-		//at this version of the component, we not yet use these properties yet.
-
-
-		
-
-		
 		// this hold value that will be used to store to the table field
 		this.valueToStore="";
 		//this is alias point to the table's field
 		this.entityField = context.parameters.entityField;
+		if (this.isNotNullNotEmptyAndDefined(context.parameters.errorMessage)) {
+			this.errorMessage= String(context.parameters.errorMessage?.raw);
+
+		} else {
+			//use default value
+		}
+		 
 
 		this._notifyOutputChanged = notifyOutputChanged;
 		this._context = context;
@@ -80,6 +71,7 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 		this.keyupAndChangeEvent = this.onKeyUpAndChange.bind(this);
 		this.inputElem.addEventListener("keyup", this.keyupAndChangeEvent);
 		this.inputElem.addEventListener("change", this.keyupAndChangeEvent);
+
 		//this.inputElem.addEventListener("blur", this.onBlur.bind(this));
 		
 		inputDiv.appendChild(this.inputElem);
@@ -119,11 +111,11 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 		// storing the latest context from the control
 		this._context = context;
 
-		//read the value of the underlined field, then update the underline value of the mask control
-		// this.valueToStore = context.parameters.entityField.raw?
-		// 	context.parameters.entityField.raw
-		// 	: "";
-		// this.inputElem.value = this.createAlienMask(this.valueToStore);
+		//!Important: dont update valueToStore to CRM field value, or you will create loop.
+		//When user edit input -> valueToStore change -> we call notifyOutputChange() to update the CRM field.
+		//when CRM field update, it calls updateView. If we update valueToStore to CRM field value,
+		//that will remove value that we have from the input.
+
 	}
 
 	/** 
@@ -172,7 +164,6 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 	}
 
 
-
 	private onBlur(event:Event){
 		console.log("onblur event");
 		
@@ -189,7 +180,7 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 			},0);
 
 			/* 
-			
+			If you want to popup:
 			this._context.navigation.openErrorDialog({
 				details:"",
 				errorCode: "",
@@ -198,7 +189,6 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 
 		}
 	}
-
 
 	
 	/* some helper methods */
@@ -238,9 +228,9 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 			tail = s.substring(1);
 		}
 
-		//remove anything that are not number, then use only first 8 digits
+		//remove anything that are not number, then use only first 9 digits
 		//tail = tail.replace(/\D/g,'').substring(0,9);
-		tail = tail.replace(/\D/g,'');   //not remove extra digit
+		tail = tail.replace(/\D/g,'');   //changed to not removing tail number, leave there but show the field is invalid
 
 		s = 'A'+tail;
 		console.log("value w/o mask (to store):", s);

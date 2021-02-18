@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
   <control namespace="KntControls" 
-    constructor="KAlienInputMask" version="0.0.2" 
+    constructor="KAlienInputMask" version="0.0.3" 
     display-name-key="KntControls.KAlienInputMask" 
     description-key="Allows applying input mask on the input for immigration alien number" 
     control-type="standard">
@@ -10,15 +10,15 @@
       If the property is represented a entity field, then usage="bound". 
       In this case, this only for component to use so usage="input"
     -->
-    
+<!--     
     <property name="inputMask" 
       display-name-key="input_mask" 
       description-key="Input mask to control input and display of the field, (use d for must have digit, # for optional)" 
       of-type="SingleLine.Text" 
       usage="input" 
-      default = "A-ddd-ddd-d##"        
+      default-value = "A-ddd-ddd-d##"        
       required="false" />
-<!--    
+    
     <property name="minLength"
       display-name-key="min-length"
       description-key="Alien number minimum length (must >=7)"
@@ -33,12 +33,13 @@
       usage="input"
       required="false" default-value="9"/>
  -->
+
     <property name="errorMessage" 
       display-name-key="error-message" 
       description-key="The error message that will display when the field does not meet the requirement" 
       of-type="SingleLine.Text" 
       usage="input" 
-      default = "the input must have 'A' following by 7 to 9 digits."        
+      default-value = "the input must have 'A' following by 7 to 9 digits."        
       required="true" />
 
 
