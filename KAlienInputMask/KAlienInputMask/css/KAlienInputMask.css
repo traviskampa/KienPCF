@@ -1,0 +1,41 @@
+/* this is the div that will wrap the input and the other div for display error
+This div will expand 100% to its parent container width  */
+
+.KntControls\.KAlienInputMask div {
+    text-align: left;
+    width: 100%;    
+
+}
+
+/* the input text, like many other input on form, it has border transparent 
+    Put more styling for input here.
+*/
+
+.KntControls\.KAlienInputMask input[name="alien-input"]{
+    border-color: transparent;
+}
+
+.KntControls\.KAlienInputMask input.alien-invalid {
+    border-color: red;
+    border-style: solid;
+}
+
+/* styling the div that used for display error */
+.KntControls\.KAlienInputMask div[name="for-input-mask-error"] {
+    display: none;
+    background-color: rgba(191, 9, 0, 0.075);
+    padding: 0.5rem;
+
+    /*for control child element or innerHTML*/
+    font-size: 0.9em;
+    font-weight: bold;
+
+}
+
+/* short cut for div[class="alien-invalid"], styling when alien-input has error */
+.KntControls\.KAlienInputMask div.alien-invalid {
+    color: rgb(191, 9, 0);
+    display: block;
+
+}
+
