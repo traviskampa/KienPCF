@@ -13,10 +13,10 @@
     
     <property name="inputMask" 
       display-name-key="input_mask" 
-      description-key="Input mask to control input and display of the field, (use d for must have digit, # for optional)" 
+      description-key="Mask to control input and display (start with A, and -:separation, #:must-have digit, 0: optional digit)" 
       of-type="SingleLine.Text" 
       usage="input" 
-      default = "A-ddd-ddd-d##"        
+      default = "A-###-###-#00"        
       required="false" />
 <!--    
     <property name="minLength"

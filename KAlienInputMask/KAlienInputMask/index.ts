@@ -9,23 +9,24 @@ import * as $ from 'jquery';
 
 
 export class KAlienInputMask implements ComponentFramework.StandardControl<IInputs, IOutputs> {
-	private errorMessage : string; 
+	private settings: {
+		errorMessage:string="must be 'A' following 7 to 9 digits",		//error message 
+		inputMask: string = "A-###-###-#00", 							//the mask
+		minLength: number=7,											//info extract from the mask
+		maxLength: number=9,											//info extract from the mask
+	}
+
 	private valueToStore: string;
-
-	//private inputMask: ComponentFramework.PropertyTypes.StringProperty;
-
-	private minLength : number;
-	private maxLength : number;
 	private entityField: ComponentFramework.PropertyTypes.StringProperty;
 
 	private _context: ComponentFramework.Context<IInputs>;
 
-	private _container: HTMLDivElement;		//container where this control stays inside
-	private inputElem: HTMLInputElement;	//hold ref to the input element
-	private errorDiv : HTMLDivElement;		//hold ref to the div for display error, 
+	private _container: HTMLDivElement;			//container where this control stays inside
+	private inputElem: HTMLInputElement;		//hold ref to the input element
+	private errorDiv : HTMLDivElement;			//hold ref to the div for display error, 
 	private _notifyOutputChanged: () => void;	//hold ref to callback, called when you update the table field.
 
-	private keyupAndChangeEvent : any;		//store the reference to the listener keyupAndChange, for later clean up.
+	private keyupAndChangeEvent : any;			//store the reference to the listener keyupAndChange, for later clean up.
 
 	/**
 	 * Empty constructor.
@@ -46,15 +47,8 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 	public init(context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void, state: ComponentFramework.Dictionary, container:HTMLDivElement)
 	{
 		
-		//this.inputMask = context.parameters.inputMask;
-		// this.minLength = context.parameters.minLength.raw? context.parameters.minLength.raw: 0;
-		// this.maxLength = context.parameters.maxLength.raw? context.parameters.maxLength.raw: 0;
-		// if (this.minLength<7) this.minLength=7;
-		// if (this.maxLength<this.minLength) this.maxLength=9; 
-		//at this version of the component, we not yet use these properties yet.
-
-
-		
+		//accquire the inputMask,
+		this.initComponentSetting(this._context);
 
 		
 		// this hold value that will be used to store to the table field
@@ -87,14 +81,13 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 		//create another div for display error
 		this.errorDiv = document.createElement("div");
 		this.errorDiv.setAttribute("name", "for-input-mask-error");
-		this.errorDiv.innerHTML = this.errorMessage;
+		this.errorDiv.innerHTML = this.settings.errorMessage;
 		
 		this._container.appendChild(inputDiv);
 		this._container.appendChild(this.errorDiv);	
 
 
-
-		//update the control value by the field value first time 
+		//initialize the control first time by retrieve CRM field's value 
 		console.log('update control value by field value')
 		this.valueToStore = context.parameters.entityField.raw?
 			context.parameters.entityField.raw
@@ -113,17 +106,22 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 	 */
 	public updateView(context: ComponentFramework.Context<IInputs>): void
 	{
-		
 		console.log('update view:');
 
 		// storing the latest context from the control
 		this._context = context;
 
-		//read the value of the underlined field, then update the underline value of the mask control
+		//!kn: don't update the valueToStore from CRM field here as you may do like followign
+		//
 		// this.valueToStore = context.parameters.entityField.raw?
 		// 	context.parameters.entityField.raw
 		// 	: "";
 		// this.inputElem.value = this.createAlienMask(this.valueToStore);
+	
+		// The reason is:
+		// as the valueToStore is changed, we call notifyChange() to update the CRM field. 
+		// when CRM field is changed, updateView() is called automatically.
+		// If in updateView(), valueToStore() is updated, then this will created a loop. 
 	}
 
 	/** 
@@ -149,6 +147,25 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 		// Add code to cleanup control if necessary
 		this.inputElem.removeEventListener("keyup", this.keyupAndChangeEvent);
 		this.inputElem.removeEventListener("change", this.keyupAndChangeEvent);
+	}
+
+
+
+	private initComponentSetting(context: ComponentFramework.Context<IInputs){
+
+		let aMask:string = context.parameters.inputMask.raw? context.parameters.inputMask.raw: "";
+
+		if (aMask.trim().length==0){		//if empty, use default value
+			console.log("mask setting is empty, use default:", this.settings.inputMask);
+		} else { //need to validate the mask, ensure it contains only A,-,#,0
+			
+			
+		}
+
+		this.settings.errorMessage = context.parameters.errorMessage?
+			String(context.parameters.errorMessage.raw?.toString) 
+			:"";
+
 	}
 
 
@@ -198,7 +215,6 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 
 		}
 	}
-
 
 	
 	/* some helper methods */
