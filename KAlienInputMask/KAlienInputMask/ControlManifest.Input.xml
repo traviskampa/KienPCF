@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
   <control namespace="KntControls" 
-    constructor="KAlienInputMask" version="0.0.3" 
+    constructor="KAlienInputMask" 
+    version="0.0.3" 
     display-name-key="KntControls.KAlienInputMask" 
     description-key="Allows applying input mask on the input for immigration alien number" 
     control-type="standard">
