@@ -83,5 +83,8 @@
       <uses-feature name="WebAPI" required="true" />
     </feature-usage>
     -->
+    <feature-usage>
+			<uses-feature name="WebAPI" required="true" />
+		</feature-usage>
   </control>
 </manifest>

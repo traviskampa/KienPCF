@@ -160,6 +160,10 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 
 		// you can access field error by doing this, but only after your value is stored in the field
 		// this._context.parameters.entityField.error) {
+
+		this._context.webAPI.retrieveMultipleRecords("pro_kncourse","?$select=pro_coursename,pro_coursedate&$orderby=pro_coursedate desc")
+		.then(value => { console.log(value) })
+		.catch(err => { console.log(err) });
 		
 	}
 
