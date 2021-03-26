@@ -8,7 +8,7 @@
   <Import Project="$(PowerAppsTargetsPath)\Microsoft.PowerApps.VisualStudio.Solution.props" Condition="Exists('$(PowerAppsTargetsPath)\Microsoft.PowerApps.VisualStudio.Solution.props')" />
 
   <PropertyGroup>
-    <ProjectGuid>12772643-d9c0-47e3-8a61-edf67c4b4067</ProjectGuid>
+    <ProjectGuid>6a6bc94a-9e32-4769-81de-8fe5e256c169</ProjectGuid>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <!--Remove TargetFramework when this is available in 16.1-->
     <TargetFramework>net462</TargetFramework>
@@ -43,12 +43,10 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\KAlienInputMask\KAlienInputMask.pcfproj" />
+    <ProjectReference Include="..\AlienInputMask\AlienInputMask.pcfproj" />
   </ItemGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <Import Project="$(PowerAppsTargetsPath)\Microsoft.PowerApps.VisualStudio.Solution.targets" Condition="Exists('$(PowerAppsTargetsPath)\Microsoft.PowerApps.VisualStudio.Solution.targets')" />
 
 </Project>
-
-

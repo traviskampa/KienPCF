@@ -15,11 +15,6 @@ This is typically done in the app's top-level file just before the main ReactDOM
 import { initializeIcons } from '@fluentui/react/lib/Icons';
 initializeIcons(/* optional base url */);
 
-
-
-
-
-
 const getRatingComponentAriaLabel = (rating: number, maxRating: number): string => {
     return `Rating value is ${rating} of ${maxRating}`;
 }

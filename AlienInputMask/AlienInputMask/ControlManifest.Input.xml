@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
   <control namespace="KntControls" 
-    constructor="KAlienInputMask" 
-    version="0.0.3" 
-    display-name-key="KntControls.KAlienInputMask" 
+    constructor="AlienInputMask" 
+    version="0.0.4" 
+    display-name-key="KntControls.AlienInputMask" 
     description-key="Allows applying input mask on the input for immigration alien number" 
     control-type="standard">
 
@@ -11,29 +11,6 @@
       If the property is represented a entity field, then usage="bound". 
       In this case, this only for component to use so usage="input"
     -->
-<!--     
-    <property name="inputMask" 
-      display-name-key="input_mask" 
-      description-key="Input mask to control input and display of the field, (use d for must have digit, # for optional)" 
-      of-type="SingleLine.Text" 
-      usage="input" 
-      default-value = "A-ddd-ddd-d##"        
-      required="false" />
-    
-    <property name="minLength"
-      display-name-key="min-length"
-      description-key="Alien number minimum length (must >=7)"
-      of-type="Decimal"
-      usage="input"
-      required="false" default-value="7"/>
-
-    <property name="maxLength"
-      display-name-key="min-length"
-      description-key="Alien number maximum length (must > min-length)"
-      of-type="Decimal"
-      usage="input"
-      required="false" default-value="9"/>
- -->
 
     <property name="errorMessage" 
       display-name-key="error-message" 
@@ -65,10 +42,10 @@
     -->
     <resources>
       <code path="index.ts" order="1"/>
-      <css path="css/KAlienInputMask.css" order="1" />
+      <css path="css/AlienInputMask.css" order="1" />
 
       <!-- UNCOMMENT TO ADD MORE RESOURCES
-      <resx path="strings/KAlienInputMask.1033.resx" version="1.0.0" />
+      <resx path="strings/AlienInputMask.1033.resx" version="1.0.0" />
       -->
     </resources>
     <!-- UNCOMMENT TO ENABLE THE SPECIFIED API

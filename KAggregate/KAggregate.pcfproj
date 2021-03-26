@@ -8,8 +8,8 @@
   <Import Project="$(PowerAppsTargetsPath)\Microsoft.PowerApps.VisualStudio.Pcf.props" Condition="Exists('$(PowerAppsTargetsPath)\Microsoft.PowerApps.VisualStudio.Pcf.props')"/>
   
   <PropertyGroup>
-    <Name>KAlienInputMask</Name>
-    <ProjectGuid>70d45a76-1949-41bb-8913-b3c0d1df3726</ProjectGuid>
+    <Name>KAggregate</Name>
+    <ProjectGuid>f7820952-3eac-4f80-aad0-ae35669df9c1</ProjectGuid>
     <OutputPath>$(MSBuildThisFileDirectory)out\controls</OutputPath>
   </PropertyGroup>
 

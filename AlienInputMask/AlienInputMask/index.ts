@@ -1,23 +1,33 @@
 import {IInputs, IOutputs} from "./generated/ManifestTypes";
 
-/* to use jQuery here, first need to install it as dependency:
+/* Note: in case need to use jQuery, first need to install it as dependency:
 		npm install @types/jquery --save-dev
 		or
 		npm install jquery
+	
+	jQuery is only need if using onBlur() function
+
+	@author: knguyen@procentrix.com
+	@last modification: 3/26/2021
+	@limitation: 
+		a valid number of digits following character 'A' is 7 to 9 digits are currently hardcode.
+		may need to modification RegExp and display pattern in createAlienMask() if you want to make above condition
+		can can be entered via configuration.
+
 */
-import * as $ from 'jquery';
+//import * as $ from 'jquery';
 
 
-export class KAlienInputMask implements ComponentFramework.StandardControl<IInputs, IOutputs> {
+export class AlienInputMask implements ComponentFramework.StandardControl<IInputs, IOutputs> {
 	private errorMessage : string = "must have 'A' followed by 7 to 9 digits"; 
 	private valueToStore: string;
 
 	private entityField: ComponentFramework.PropertyTypes.StringProperty;
 	private _context: ComponentFramework.Context<IInputs>;
 
-	private _container: HTMLDivElement;		//container where this control stays inside
-	private inputElem: HTMLInputElement;	//hold ref to the input element
-	private errorDiv : HTMLDivElement;		//hold ref to the div for display error, 
+	private _container: HTMLDivElement;			//container where this control stays inside
+	private inputElem: HTMLInputElement;		//hold ref to the input element
+	private errorDiv : HTMLDivElement;			//hold ref to the div for display error, 
 	private _notifyOutputChanged: () => void;	//hold ref to callback, called when you update the table field.
 
 	private keyupAndChangeEvent : any;		//store the reference to the listener keyupAndChange, for later clean up.
@@ -72,7 +82,7 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 		this.inputElem.addEventListener("keyup", this.keyupAndChangeEvent);
 		this.inputElem.addEventListener("change", this.keyupAndChangeEvent);
 
-		//this.inputElem.addEventListener("blur", this.onBlur.bind(this));
+		//this.inputElem.addEventListener("blur", this.onBlur.bind(this));	//prevent lost alien to lost focus
 		
 		inputDiv.appendChild(this.inputElem);
 
@@ -84,13 +94,10 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 		this._container.appendChild(inputDiv);
 		this._container.appendChild(this.errorDiv);	
 
-
-
 		//update the control value by the field value first time 
 		console.log('update control value by field value')
 		this.valueToStore = context.parameters.entityField.raw?
-			context.parameters.entityField.raw
-			:"";
+			context.parameters.entityField.raw	:  "";
 		
 		this.inputElem.value = this.createAlienMask(this.valueToStore);
 	}
@@ -103,9 +110,7 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 	 * Kt: This method is call whenever the field that bound to the control is updated or changed.
 	 * So you need to grab the field value, and update the look of control associated with it.
 	 */
-	public updateView(context: ComponentFramework.Context<IInputs>): void
-	{
-		
+	public updateView(context: ComponentFramework.Context<IInputs>): void {
 		console.log('update view:');
 
 		// storing the latest context from the control
@@ -156,7 +161,7 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 		console.log('call notify');
 		this._notifyOutputChanged();
 
-		this.displayErrorNotification(!valid, false);
+		this.displayErrorNotification(!valid);
 
 		// you can access field error by doing this, but only after your value is stored in the field
 		// this._context.parameters.entityField.error) {
@@ -167,7 +172,13 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 		
 	}
 
+	/** 
+	 * event handler that prevent the control to lost focus. This handler is only needed 
+	 * if platform notification utilities function (used for prevent form being saved) 
+	 * are not available for use. For now, this function is not used. 
+	 * */
 
+	/*
 	private onBlur(event:Event){
 		console.log("onblur event");
 		
@@ -183,19 +194,20 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 				//$("[name='alien-input']")
 			},0);
 
-			/* 
-			If you want to popup:
-			this._context.navigation.openErrorDialog({
-				details:"",
-				errorCode: "",
-				message:"Alien number must be a 'A' follow by 7 or 9 digits"});
-			*/
-
+			 
+			//If you want to display an popup:
+			//this._context.navigation.openErrorDialog({
+			//	details:"",
+			//	errorCode: "",
+			//	message:"Alien number must be a 'A' follow by 7 or 9 digits"});
+			
 		}
 	}
-
+	*/
 	
-	/* some helper methods */
+	/** --------------some helper methods ----------------- */
+
+
 	private createAlienMask(s:string):string{
 		let re1 =/^([Aa]{1})(\d{1,3})/;
 		let re2 =/^([Aa]{1})(\d{3})(\d{1,3})/;
@@ -232,9 +244,11 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 			tail = s.substring(1);
 		}
 
-		//remove anything that are not number, then use only first 9 digits
+		//Original: remove anything that are not number, then use only first 9 digits
 		//tail = tail.replace(/\D/g,'').substring(0,9);
-		tail = tail.replace(/\D/g,'');   //changed to not removing tail number, leave there but show the field is invalid
+
+		//Changed to: Mr.Blackburn suggestion, not removing tail number, leave there but show the field is invalid
+		tail = tail.replace(/\D/g,'');   
 
 		s = 'A'+tail;
 		console.log("value w/o mask (to store):", s);
@@ -246,6 +260,7 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 			return true;
 		} 
 
+		//the valid A number is one that has 7 to 9 digits
 		let re = /^[A]\d{7,9}$/;
 		let r = new RegExp(re);
 
@@ -255,28 +270,27 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 		return valid;
 	}
 
-
-	private displayErrorNotification(showError:boolean, useDiv:boolean){
+	/* this method configure the notification utility, then display error message using function provided by Microsoft.
+		Once the error notification is set, the form will prevent the record to be saved.
+		To clear the notification, pass showError=false.
+	 */
+	private displayErrorNotification(showError:boolean){
 		let objClearNotification = null;
 		let objSetNotification = null;
 		let uniqueId = "unique-notification-id";
 
+		//retrieve the utility from context that needed for setting notification.
 		objClearNotification = this.getFuncFromContextUtils(this._context,"clearNotification");
 		objSetNotification = this.getFuncFromContextUtils(this._context,"setNotification");	
 
-		if (useDiv || !this.isNotNullNotEmptyAndDefined(objClearNotification) || !this.isNotNullNotEmptyAndDefined(objSetNotification) ){  //use div to display error
-			if (showError) {
-				this.inputElem.classList.add("alien-invalid");
-				this.errorDiv.classList.add("alien-invalid");
-			} else {
-				this.inputElem.classList.remove("alien-invalid");
-				this.errorDiv.classList.remove("alien-invalid");
-			}
-		} 
-		else {	//use setNotification() to display error
+		//Make sure two utility functions for display & clear notification available to use. 
+		//If not, use div to display error, but be advised that 
+		//using <div> to display error will not able to prevent the form to save current record.
 
-			if(this.isNotNullNotEmptyAndDefined(objClearNotification) && this.isNotNullNotEmptyAndDefined(objSetNotification))
-			{
+		if( this.isNotNullNotEmptyAndDefined(objClearNotification) 
+				&& this.isNotNullNotEmptyAndDefined(objSetNotification) ) {
+
+				//Here Utility is available	
 				objClearNotification = objClearNotification as Function;
 				objSetNotification = objSetNotification as Function;
 
@@ -290,13 +304,17 @@ export class KAlienInputMask implements ComponentFramework.StandardControl<IInpu
 					console.log('clear Notifiation');	
 					objClearNotification(uniqueId);
 				}
+		} else {
+			//in here, the utilities is not available to use, we use <div> to display error
+			if (showError) {
+				this.inputElem.classList.add("alien-invalid");
+				this.errorDiv.classList.add("alien-invalid");
+			} else {
+				this.inputElem.classList.remove("alien-invalid");
+				this.errorDiv.classList.remove("alien-invalid");
 			}
-		}
+		} 
 	}
-
-
-
-
 
 
 	public getFuncFromContextUtils(context:ComponentFramework.Context<IInputs>, funcName: string): Function | null
