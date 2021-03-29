@@ -1,6 +1,6 @@
 import {IInputs, IOutputs} from "./generated/ManifestTypes";
 
-/* Note: in case need to use jQuery, first need to install it as dependency:
+/** Note: in case need to use jQuery, first need to install it as dependency:
 		npm install @types/jquery --save-dev
 		or
 		npm install jquery
@@ -8,18 +8,22 @@ import {IInputs, IOutputs} from "./generated/ManifestTypes";
 	jQuery is only need if using onBlur() function
 
 	@author: knguyen@procentrix.com
-	@last modification: 3/26/2021
+	@last modification: 3/29/2021
 	@limitation: 
-		a valid number of digits following character 'A' is 7 to 9 digits are currently hardcode.
-		may need to modification RegExp and display pattern in createAlienMask() if you want to make above condition
+		a valid number of digits following character 'A' is 7 to 9 digits are currently hardcoded.
+		May need to modification RegExp and display pattern in createAlienMask() if you want to make above condition
 		can can be entered via configuration.
-
+	
+	Implementation brief:
+	This control maintains two variables: 
+	 - one variable with masks is for display only, 
+	 - and the other to keeps alien value without mask, which is used for updating to the record.
 */
-//import * as $ from 'jquery';
 
+//import * as $ from 'jquery';		
 
 export class AlienInputMask implements ComponentFramework.StandardControl<IInputs, IOutputs> {
-	private errorMessage : string = "must have 'A' followed by 7 to 9 digits"; 
+	private errorMessage : string = "Must begin with 'A' followed by 7 to 9 digits"; 
 	private valueToStore: string;
 
 	private entityField: ComponentFramework.PropertyTypes.StringProperty;
@@ -166,10 +170,6 @@ export class AlienInputMask implements ComponentFramework.StandardControl<IInput
 		// you can access field error by doing this, but only after your value is stored in the field
 		// this._context.parameters.entityField.error) {
 
-		this._context.webAPI.retrieveMultipleRecords("pro_kncourse","?$select=pro_coursename,pro_coursedate&$orderby=pro_coursedate desc")
-		.then(value => { console.log(value) })
-		.catch(err => { console.log(err) });
-		
 	}
 
 	/** 
@@ -207,7 +207,11 @@ export class AlienInputMask implements ComponentFramework.StandardControl<IInput
 	
 	/** --------------some helper methods ----------------- */
 
-
+	/** 
+	 * Return a provided parameter with injected mask characters for display purpose
+	 * Here, the alien number is displayed in one to three group separated by (-)
+	 * depending its current length.
+	 */
 	private createAlienMask(s:string):string{
 		let re1 =/^([Aa]{1})(\d{1,3})/;
 		let re2 =/^([Aa]{1})(\d{3})(\d{1,3})/;
@@ -227,6 +231,7 @@ export class AlienInputMask implements ComponentFramework.StandardControl<IInput
 		return s;
 	}
 
+	/** Remove all masks character in the provided parameter */
 	private destroyAlienMask(s: string):string {
 		if (s!=null && s.trim().length>0){
 			s=s.trim();
@@ -255,12 +260,13 @@ export class AlienInputMask implements ComponentFramework.StandardControl<IInput
 		return s;
 	}
 
+	/** Check if the @value satisfied the regular expression required for alien number */
 	private regexTest(value:string): boolean {
 		if (value==null || value ===""){
 			return true;
 		} 
 
-		//the valid A number is one that has 7 to 9 digits
+		//The valid A number is one that has 7 to 9 digits which is hardcode here (bad!)
 		let re = /^[A]\d{7,9}$/;
 		let r = new RegExp(re);
 
@@ -270,14 +276,15 @@ export class AlienInputMask implements ComponentFramework.StandardControl<IInput
 		return valid;
 	}
 
-	/* this method configure the notification utility, then display error message using function provided by Microsoft.
-		Once the error notification is set, the form will prevent the record to be saved.
-		To clear the notification, pass showError=false.
+	/** 
+	 * This method configure the notification utility, then display error message using function provided by Microsoft.
+	 * Once the error notification is set, the form will prevent the record to be saved.
+	 * To clear the notification, pass showError=false.
 	 */
 	private displayErrorNotification(showError:boolean){
 		let objClearNotification = null;
 		let objSetNotification = null;
-		let uniqueId = "unique-notification-id";
+		let notificationUid = "alieninputmask-invalid-entry-notification";
 
 		//retrieve the utility from context that needed for setting notification.
 		objClearNotification = this.getFuncFromContextUtils(this._context,"clearNotification");
@@ -295,17 +302,17 @@ export class AlienInputMask implements ComponentFramework.StandardControl<IInput
 				objSetNotification = objSetNotification as Function;
 
 				if (showError) {
-					//setNotification(message,uniqueId)
-					console.log('set Notifiation');
-					objSetNotification(this.errorMessage, uniqueId);
+					//setNotification(message,notificationUid)
+					console.log('set Notifiation- alien number is invalid');
+					objSetNotification(this.errorMessage, notificationUid);
 				}
 				else  {
-					//clearNotification(uniqueId)
-					console.log('clear Notifiation');	
-					objClearNotification(uniqueId);
+					//clearNotification(notificationUid)
+					console.log('clear Notifiation- alient number is valid');	
+					objClearNotification(notificationUid);
 				}
 		} else {
-			//in here, the utilities is not available to use, we use <div> to display error
+			//here, in case the utilities is not available to use, we use <div> to display error
 			if (showError) {
 				this.inputElem.classList.add("alien-invalid");
 				this.errorDiv.classList.add("alien-invalid");
@@ -316,7 +323,14 @@ export class AlienInputMask implements ComponentFramework.StandardControl<IInput
 		} 
 	}
 
-
+	/**
+	 * This method retrieve the notification utilities from form context object.
+	 * One application for this function is retrieving the notification utility that is used
+	 * to prevent forms to save a record if an alien # is invalid.
+	 * @param context : execution context
+	 * @param funcName : name of the utility function for retrieving.
+	 * @returns 
+	 */
 	public getFuncFromContextUtils(context:ComponentFramework.Context<IInputs>, funcName: string): Function | null
 	{
 		var funcRef = null;
@@ -331,6 +345,11 @@ export class AlienInputMask implements ComponentFramework.StandardControl<IInput
 	}
 
 
+	/**
+	 * Utility function to ensure the obj is not null, not undefined, and is not empty
+	 * @param obj 
+	 * @returns 
+	 */
 	public isNotNullNotEmptyAndDefined(obj: any): boolean
 	{
 		var isObjectValid: boolean = false;

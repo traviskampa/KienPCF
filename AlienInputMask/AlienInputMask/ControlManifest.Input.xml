@@ -2,7 +2,7 @@
 <manifest>
   <control namespace="KntControls" 
     constructor="AlienInputMask" 
-    version="0.0.4" 
+    version="0.0.5" 
     display-name-key="KntControls.AlienInputMask" 
     description-key="Allows applying input mask on the input for immigration alien number" 
     control-type="standard">
